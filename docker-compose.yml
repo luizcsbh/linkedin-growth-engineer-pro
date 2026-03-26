@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: linkedin_growth_engineer_pro
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    # Command to run the main routine (scheduler)
+    command: python main.py
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: linkedin_growth_dashboard
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    command: gunicorn -w 4 -b 0.0.0.0:5000 app.dashboard.app:app
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    depends_on:
+      - app

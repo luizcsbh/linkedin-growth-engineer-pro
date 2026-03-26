@@ -1,0 +1,8 @@
+playwright
+flask
+pandas
+gunicorn
+schedule
+python-dotenv
+flask-sqlalchemy
+numpy
