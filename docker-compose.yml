@@ -25,7 +25,7 @@ services:
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
-    command: gunicorn -w 4 -b 0.0.0.0:5000 app.dashboard.app:app
+    command: gunicorn -w 4 -b 0.0.0.0:5000 app.dashboard.dashboard_app:app
     ports:
       - "5000:5000"
     restart: unless-stopped

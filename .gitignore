@@ -1,0 +1,108 @@
+# =========================
+# PYTHON
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribuição / build
+build/
+dist/
+.eggs/
+*.egg-info/
+*.egg
+
+# Ambiente virtual
+venv/
+.env/
+.venv/
+ENV/
+env/
+
+# Cache Python
+.pytest_cache/
+.mypy_cache/
+.cache/
+.coverage
+htmlcov/
+
+# =========================
+# ENV VARIABLES (SEGREDOS)
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# PLAYWRIGHT / BROWSERS
+# =========================
+playwright-report/
+test-results/
+.browser/
+ms-playwright/
+
+# =========================
+# DATABASES
+# =========================
+*.sqlite3
+*.db
+data/*.db
+
+# =========================
+# LOGS
+# =========================
+logs/
+*.log
+
+# =========================
+# SESSION / COOKIES
+# =========================
+sessions/
+cookies/
+storage_state.json
+
+# =========================
+# IDEs
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# =========================
+# DOCKER
+# =========================
+docker-data/
+*.pid
+
+# =========================
+# DASHBOARD TEMP FILES
+# =========================
+instance/
+*.tmp
+
+# =========================
+# TEST OUTPUTS
+# =========================
+coverage.xml
+nosetests.xml
+
+# =========================
+# NOTEBOOKS (SE EXISTIR)
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# SECURITY
+# =========================
+*.pem
+*.key
+*.crt
+secrets.json
+credentials.json

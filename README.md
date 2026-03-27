@@ -72,11 +72,11 @@ docker-compose down
 
 2. Execute o script principal:
    ```bash
-   python main.py
+   python3 main.py
    ```
    E o dashboard (em outro terminal):
    ```bash
-   python app/dashboard/app.py
+    python3 -m app.dashboard.dashboard_app
    ```
 
 ### ☁️ Deploy em VPS
