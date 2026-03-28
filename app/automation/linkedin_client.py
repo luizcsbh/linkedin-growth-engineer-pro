@@ -168,20 +168,31 @@ class LinkedInAutomation:
             like_button = await post.query_selector("button.react-button__trigger:not(.react-button__trigger--active)")
             
             if like_button:
-                # Get post text for PHP check
+                # 1. Get post author (actor)
+                author_elem = await post.query_selector(".update-components-actor__title span span:first-child")
+                author = await author_elem.inner_text() if author_elem else "LinkedIn User"
+                
+                # 2. Get post text for PHP check and snippet
                 post_text = await post.inner_text()
                 is_php = 1 if any(kw in post_text.lower() for kw in ["php", "laravel", "backend", "software architecture"]) else 0
+                
+                # 3. Get post permalink (usually from the time link)
+                # Typical selector is .update-components-actor__sub-description a or .feed-shared-actor__sub-description a
+                link_elem = await post.query_selector(".update-components-actor__sub-description a, .feed-shared-actor__sub-description a")
+                permalink = await link_elem.get_attribute("href") if link_elem else self.page.url
+                if permalink and not permalink.startswith("http"):
+                    permalink = "https://www.linkedin.com" + permalink
                 
                 await like_button.scroll_into_view_if_needed()
                 HumanSimulator.wait(1, 2)
                 await like_button.click()
-                logger.info("Liked a post.")
+                logger.info(f"Liked post by {author}")
                 
                 self.safe_rules.record_action('post_like')
                 actions_data.append({
                     'type': 'post_like',
-                    'url': self.page.url, # Feed URL as placeholder
-                    'title': post_text[:50].strip() + "...",
+                    'url': permalink,
+                    'title': f"{author}: {post_text[:60].strip()}...",
                     'is_php': is_php
                 })
                 

@@ -131,6 +131,39 @@ class DatabaseManager:
                 ''', (limit,))
             return cursor.fetchall()
 
+    def get_paginated_actions(self, limit=10, offset=0, action_types=None):
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if action_types:
+                placeholders = ', '.join(['?'] * len(action_types))
+                query = f'''
+                    SELECT action_type, timestamp, detail_url, detail_title, is_php_relevant 
+                    FROM actions 
+                    WHERE action_type IN ({placeholders})
+                    ORDER BY timestamp DESC 
+                    LIMIT ? OFFSET ?
+                '''
+                cursor.execute(query, (*action_types, limit, offset))
+            else:
+                cursor.execute('''
+                    SELECT action_type, timestamp, detail_url, detail_title, is_php_relevant 
+                    FROM actions 
+                    ORDER BY timestamp DESC 
+                    LIMIT ? OFFSET ?
+                ''', (limit, offset))
+            return cursor.fetchall()
+
+    def get_total_actions_count(self, action_types=None):
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if action_types:
+                placeholders = ', '.join(['?'] * len(action_types))
+                query = f'SELECT COUNT(*) FROM actions WHERE action_type IN ({placeholders})'
+                cursor.execute(query, action_types)
+            else:
+                cursor.execute('SELECT COUNT(*) FROM actions')
+            return cursor.fetchone()[0]
+
     def get_action_stats(self, action_types):
         with self._get_connection() as conn:
             cursor = conn.cursor()

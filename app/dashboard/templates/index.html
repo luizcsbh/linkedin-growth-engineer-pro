@@ -29,6 +29,13 @@
         .action-link { color: #3498db; text-decoration: none; font-size: 13px; }
         .action-link:hover { text-decoration: underline; }
         .stats-summary { font-size: 12px; color: #666; margin-top: 5px; }
+        
+        /* Pagination */
+        .pagination { display: flex; justify-content: center; align-items: center; margin-top: 20px; gap: 5px; }
+        .pagination a, .pagination span { padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; text-decoration: none; color: #666; font-size: 14px; }
+        .pagination a:hover { background-color: #f8f9fa; border-color: #ccc; }
+        .pagination .active { background-color: #2c3e50; color: white; border-color: #2c3e50; }
+        .pagination .disabled { color: #ccc; border-color: #eee; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -97,6 +104,22 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+                {% if total_pages_jobs > 1 %}
+                <div class="pagination" style="margin-top: 10px;">
+                    {% if current_page_jobs > 1 %}
+                    <a href="/?page_jobs={{ current_page_jobs - 1 }}&page={{ current_page_gen }}">&laquo;</a>
+                    {% endif %}
+                    
+                    {% for p in range(max(1, current_page_jobs - 1), min(total_pages_jobs, current_page_jobs + 1) + 1) %}
+                    <a href="/?page_jobs={{ p }}&page={{ current_page_gen }}" class="{{ 'active' if p == current_page_jobs else '' }}">{{ p }}</a>
+                    {% endfor %}
+                    
+                    {% if current_page_jobs < total_pages_jobs %}
+                    <a href="/?page_jobs={{ current_page_jobs + 1 }}&page={{ current_page_gen }}">&raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
             </div>
 
             <!-- Relatório de Likes -->
@@ -119,7 +142,7 @@
                         {% for like in likes_report %}
                         <tr>
                             <td>
-                                <span style="font-size: 13px; color: #333;">{{ like[3] }}</span>
+                                <a href="{{ like[2] }}" target="_blank" class="action-link" style="color: #333; font-weight: 500;">{{ like[3] }}</a>
                                 <div style="font-size: 10px; color: #999;">{{ like[1] }}</div>
                             </td>
                             <td>
@@ -178,6 +201,26 @@
                     {% endfor %}
                 </tbody>
             </table>
+            
+            {% if total_pages_gen > 1 %}
+            <div class="pagination">
+                {% if current_page_gen > 1 %}
+                <a href="/?page={{ current_page_gen - 1 }}&page_jobs={{ current_page_jobs }}">&laquo; Anterior</a>
+                {% else %}
+                <span class="disabled">&laquo; Anterior</span>
+                {% endif %}
+                
+                {% for p in range(max(1, current_page_gen - 2), min(total_pages_gen, current_page_gen + 2) + 1) %}
+                <a href="/?page={{ p }}&page_jobs={{ current_page_jobs }}" class="{{ 'active' if p == current_page_gen else '' }}">{{ p }}</a>
+                {% endfor %}
+                
+                {% if current_page_gen < total_pages_gen %}
+                <a href="/?page={{ current_page_gen + 1 }}&page_jobs={{ current_page_jobs }}">Próximo &raquo;</a>
+                {% else %}
+                <span class="disabled">Próximo &raquo;</span>
+                {% endif %}
+            </div>
+            {% endif %}
         </div>
     </div>
 

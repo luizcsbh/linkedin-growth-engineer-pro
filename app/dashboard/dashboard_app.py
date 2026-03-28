@@ -1,13 +1,24 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from app.analytics.database import DatabaseManager
 from app.core.config import Config
 import pandas as pd
+import math
 
 app = Flask(__name__)
 db = DatabaseManager()
 
 @app.route('/')
 def index():
+    # Pagination for General Log
+    page_gen = request.args.get('page', 1, type=int)
+    per_page_gen = 10
+    offset_gen = (page_gen - 1) * per_page_gen
+    
+    # Pagination for Job Report
+    page_jobs = request.args.get('page_jobs', 1, type=int)
+    per_page_jobs = 10
+    offset_jobs = (page_jobs - 1) * per_page_jobs
+    
     # Get recent metrics
     metrics = db.get_recent_metrics(7)
     
@@ -25,12 +36,18 @@ def index():
     # Get efficiency per action
     weights = db.get_engagement_weights()
     
-    # Get recent detailed actions
-    recent_actions = db.get_recent_actions(20)
+    # Get paginated detailed actions (General Log)
+    recent_actions = db.get_paginated_actions(per_page_gen, offset_gen)
+    total_actions_gen = db.get_total_actions_count()
+    total_pages_gen = math.ceil(total_actions_gen / per_page_gen)
     
-    # Get specific reports for Likes and Jobs
+    # Get paginated detailed actions (Job Report)
+    jobs_report = db.get_paginated_actions(per_page_jobs, offset_jobs, action_types=['jobs_view'])
+    total_actions_jobs = db.get_total_actions_count(action_types=['jobs_view'])
+    total_pages_jobs = math.ceil(total_actions_jobs / per_page_jobs)
+    
+    # Get specific reports for Likes (remain static/limited for now to avoid complexity)
     likes_report = db.get_recent_actions(15, action_types=['post_like'])
-    jobs_report = db.get_recent_actions(15, action_types=['jobs_view'])
     
     # Get stats for Likes and Jobs
     action_stats = db.get_action_stats(['post_like', 'jobs_view'])
@@ -44,7 +61,13 @@ def index():
                            recent_actions=recent_actions,
                            likes_report=likes_report,
                            jobs_report=jobs_report,
-                           stats=stats_dict)
+                           stats=stats_dict,
+                           current_page_gen=page_gen,
+                           total_pages_gen=total_pages_gen,
+                           current_page_jobs=page_jobs,
+                           total_pages_jobs=total_pages_jobs,
+                           max=max,
+                           min=min)
 
 @app.route('/api/metrics')
 def get_metrics():
