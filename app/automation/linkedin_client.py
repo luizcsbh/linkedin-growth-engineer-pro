@@ -160,21 +160,39 @@ class LinkedInAutomation:
         
         # Collect potential posts to like
         potential_posts = []
+        post_selectors = ["[data-urn]", ".feed-shared-update-v2", ".feed-shared-update"]
+        
         for _ in range(3): # Scroll a few times to get a pool of posts
-            posts = await self.page.query_selector_all(".feed-shared-update-v2")
-            for p in posts:
-                if p not in potential_posts:
-                    potential_posts.append(p)
+            for selector in post_selectors:
+                posts = await self.page.query_selector_all(selector)
+                for p in posts:
+                    if p not in potential_posts:
+                        potential_posts.append(p)
             await HumanSimulator.human_scroll(self.page)
             HumanSimulator.random_pause()
+            
+        logger.info(f"Found {len(potential_posts)} potential posts in feed.")
             
         # Prioritize PHP posts
         php_posts = []
         other_posts = []
         
+        # Like button selectors (Portuguese and English)
+        like_btn_selectors = [
+            "button.react-button__trigger:not(.react-button__trigger--active)",
+            "button.artdeco-button[aria-label*='Like']:not([aria-pressed='true'])",
+            "button.artdeco-button[aria-label*='Gostar']:not([aria-pressed='true'])",
+            "button[aria-label*='Like'][aria-pressed='false']",
+            "button[aria-label*='Gostar'][aria-pressed='false']"
+        ]
+        
         for post in potential_posts:
-            # Check if already liked
-            like_button = await post.query_selector("button.react-button__trigger:not(.react-button__trigger--active)")
+            # Check for like button with multiple selectors
+            like_button = None
+            for selector in like_btn_selectors:
+                like_button = await post.query_selector(selector)
+                if like_button: break
+                
             if not like_button: continue
             
             post_text = await post.inner_text()
@@ -187,12 +205,20 @@ class LinkedInAutomation:
                 
         # Combine lists: PHP first
         all_ordered_posts = php_posts + other_posts
+        logger.info(f"Identified {len(php_posts)} PHP posts and {len(other_posts)} other candidates.")
         
         for post, post_text, is_php in all_ordered_posts:
             if liked_count >= num_likes_target: break
-            if not self.safe_rules.can_perform_action('post_like'): break
+            if not self.safe_rules.can_perform_action('post_like'): 
+                logger.info("Reached daily like limit in safe rules.")
+                break
             
-            like_button = await post.query_selector("button.react-button__trigger:not(.react-button__trigger--active)")
+            # Re-find the like button to ensure it's still there
+            like_button = None
+            for selector in like_btn_selectors:
+                like_button = await post.query_selector(selector)
+                if like_button: break
+                
             if like_button:
                 # Get author and link
                 author_elem = await post.query_selector(".update-components-actor__title span span:first-child")

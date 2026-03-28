@@ -33,8 +33,8 @@ def run_main_routine():
 
 if __name__ == "__main__":
     # Schedule the main routine to run daily
-    schedule.every().day.at("21:43").do(run_main_routine)
-    logger.info("Daily routine scheduled for 21:43")
+    schedule.every().day.at("22:12").do(run_main_routine)
+    logger.info("Daily routine scheduled for 22:12")
 
     # Schedule the dashboard to run in a separate process/thread if needed
     # For simplicity, we'll assume the dashboard is run separately or via gunicorn
