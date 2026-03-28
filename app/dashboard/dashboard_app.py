@@ -19,6 +19,11 @@ def index():
     per_page_jobs = 10
     offset_jobs = (page_jobs - 1) * per_page_jobs
     
+    # Pagination for Likes Report
+    page_likes = request.args.get('page_likes', 1, type=int)
+    per_page_likes = 10
+    offset_likes = (page_likes - 1) * per_page_likes
+    
     # Get recent metrics
     metrics = db.get_recent_metrics(7)
     
@@ -46,8 +51,10 @@ def index():
     total_actions_jobs = db.get_total_actions_count(action_types=['jobs_view'])
     total_pages_jobs = math.ceil(total_actions_jobs / per_page_jobs)
     
-    # Get specific reports for Likes (remain static/limited for now to avoid complexity)
-    likes_report = db.get_recent_actions(15, action_types=['post_like'])
+    # Get paginated detailed actions (Likes Report)
+    likes_report = db.get_paginated_actions(per_page_likes, offset_likes, action_types=['post_like'])
+    total_actions_likes = db.get_total_actions_count(action_types=['post_like'])
+    total_pages_likes = math.ceil(total_actions_likes / per_page_likes)
     
     # Get stats for Likes and Jobs
     action_stats = db.get_action_stats(['post_like', 'jobs_view'])
@@ -66,6 +73,8 @@ def index():
                            total_pages_gen=total_pages_gen,
                            current_page_jobs=page_jobs,
                            total_pages_jobs=total_pages_jobs,
+                           current_page_likes=page_likes,
+                           total_pages_likes=total_pages_likes,
                            max=max,
                            min=min)
 

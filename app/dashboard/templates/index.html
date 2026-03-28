@@ -108,15 +108,15 @@
                 {% if total_pages_jobs > 1 %}
                 <div class="pagination" style="margin-top: 10px;">
                     {% if current_page_jobs > 1 %}
-                    <a href="/?page_jobs={{ current_page_jobs - 1 }}&page={{ current_page_gen }}">&laquo;</a>
+                    <a href="/?page_jobs={{ current_page_jobs - 1 }}&page={{ current_page_gen }}&page_likes={{ current_page_likes }}">&laquo;</a>
                     {% endif %}
                     
                     {% for p in range(max(1, current_page_jobs - 1), min(total_pages_jobs, current_page_jobs + 1) + 1) %}
-                    <a href="/?page_jobs={{ p }}&page={{ current_page_gen }}" class="{{ 'active' if p == current_page_jobs else '' }}">{{ p }}</a>
+                    <a href="/?page_jobs={{ p }}&page={{ current_page_gen }}&page_likes={{ current_page_likes }}" class="{{ 'active' if p == current_page_jobs else '' }}">{{ p }}</a>
                     {% endfor %}
                     
                     {% if current_page_jobs < total_pages_jobs %}
-                    <a href="/?page_jobs={{ current_page_jobs + 1 }}&page={{ current_page_gen }}">&raquo;</a>
+                    <a href="/?page_jobs={{ current_page_jobs + 1 }}&page={{ current_page_gen }}&page_likes={{ current_page_likes }}">&raquo;</a>
                     {% endif %}
                 </div>
                 {% endif %}
@@ -156,6 +156,23 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+                {% if total_pages_likes > 1 %}
+                <div class="pagination" style="margin-top: 10px;">
+                    {% if current_page_likes > 1 %}
+                    <a href="/?page_likes={{ current_page_likes - 1 }}&page={{ current_page_gen }}&page_jobs={{ current_page_jobs }}">&laquo;</a>
+                    {% endif %}
+                    
+                    {% for p in range(max(1, current_page_likes - 1), min(total_pages_likes, current_page_likes + 1) + 1) %}
+                    <a href="/?page_likes={{ p }}&page={{ current_page_gen }}&page_jobs={{ current_page_jobs }}" class="{{ 'active' if p == current_page_likes else '' }}">{{ p }}</a>
+                    {% endfor %}
+                    
+                    {% if current_page_likes < total_pages_likes %}
+                    <a href="/?page_likes={{ current_page_likes + 1 }}&page={{ current_page_gen }}&page_jobs={{ current_page_jobs }}">&raquo;</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
             </div>
         </div>
 
@@ -205,17 +222,17 @@
             {% if total_pages_gen > 1 %}
             <div class="pagination">
                 {% if current_page_gen > 1 %}
-                <a href="/?page={{ current_page_gen - 1 }}&page_jobs={{ current_page_jobs }}">&laquo; Anterior</a>
+                <a href="/?page={{ current_page_gen - 1 }}&page_jobs={{ current_page_jobs }}&page_likes={{ current_page_likes }}">&laquo; Anterior</a>
                 {% else %}
                 <span class="disabled">&laquo; Anterior</span>
                 {% endif %}
                 
                 {% for p in range(max(1, current_page_gen - 2), min(total_pages_gen, current_page_gen + 2) + 1) %}
-                <a href="/?page={{ p }}&page_jobs={{ current_page_jobs }}" class="{{ 'active' if p == current_page_gen else '' }}">{{ p }}</a>
+                <a href="/?page={{ p }}&page_jobs={{ current_page_jobs }}&page_likes={{ current_page_likes }}" class="{{ 'active' if p == current_page_gen else '' }}">{{ p }}</a>
                 {% endfor %}
                 
                 {% if current_page_gen < total_pages_gen %}
-                <a href="/?page={{ current_page_gen + 1 }}&page_jobs={{ current_page_jobs }}">Próximo &raquo;</a>
+                <a href="/?page={{ current_page_gen + 1 }}&page_jobs={{ current_page_jobs }}&page_likes={{ current_page_likes }}">Próximo &raquo;</a>
                 {% else %}
                 <span class="disabled">Próximo &raquo;</span>
                 {% endif %}

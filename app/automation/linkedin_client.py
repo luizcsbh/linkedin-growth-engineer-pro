@@ -153,31 +153,50 @@ class LinkedInAutomation:
         await self.page.goto("https://www.linkedin.com/feed/")
         HumanSimulator.wait(3, 6)
         
-        num_likes = random.randint(3, 6)
+        num_likes_target = random.randint(3, 6)
         actions_data = []
+        liked_count = 0
         
-        for _ in range(num_likes):
-            if not self.safe_rules.can_perform_action('post_like'):
-                break
-                
-            # Find posts
+        # Collect potential posts to like
+        potential_posts = []
+        for _ in range(3): # Scroll a few times to get a pool of posts
             posts = await self.page.query_selector_all(".feed-shared-update-v2")
-            if not posts: break
+            for p in posts:
+                if p not in potential_posts:
+                    potential_posts.append(p)
+            await HumanSimulator.human_scroll(self.page)
+            HumanSimulator.random_pause()
             
-            post = random.choice(posts[:5])
+        # Prioritize PHP posts
+        php_posts = []
+        other_posts = []
+        
+        for post in potential_posts:
+            # Check if already liked
             like_button = await post.query_selector("button.react-button__trigger:not(.react-button__trigger--active)")
+            if not like_button: continue
             
+            post_text = await post.inner_text()
+            is_php = any(kw in post_text.lower() for kw in ["php", "laravel", "backend", "software architecture", "symfony"])
+            
+            if is_php:
+                php_posts.append((post, post_text, True))
+            else:
+                other_posts.append((post, post_text, False))
+                
+        # Combine lists: PHP first
+        all_ordered_posts = php_posts + other_posts
+        
+        for post, post_text, is_php in all_ordered_posts:
+            if liked_count >= num_likes_target: break
+            if not self.safe_rules.can_perform_action('post_like'): break
+            
+            like_button = await post.query_selector("button.react-button__trigger:not(.react-button__trigger--active)")
             if like_button:
-                # 1. Get post author (actor)
+                # Get author and link
                 author_elem = await post.query_selector(".update-components-actor__title span span:first-child")
                 author = await author_elem.inner_text() if author_elem else "LinkedIn User"
                 
-                # 2. Get post text for PHP check and snippet
-                post_text = await post.inner_text()
-                is_php = 1 if any(kw in post_text.lower() for kw in ["php", "laravel", "backend", "software architecture"]) else 0
-                
-                # 3. Get post permalink (usually from the time link)
-                # Typical selector is .update-components-actor__sub-description a or .feed-shared-actor__sub-description a
                 link_elem = await post.query_selector(".update-components-actor__sub-description a, .feed-shared-actor__sub-description a")
                 permalink = await link_elem.get_attribute("href") if link_elem else self.page.url
                 if permalink and not permalink.startswith("http"):
@@ -186,17 +205,17 @@ class LinkedInAutomation:
                 await like_button.scroll_into_view_if_needed()
                 HumanSimulator.wait(1, 2)
                 await like_button.click()
-                logger.info(f"Liked post by {author}")
+                logger.info(f"Liked {'PHP ' if is_php else ''}post by {author}")
                 
                 self.safe_rules.record_action('post_like')
                 actions_data.append({
                     'type': 'post_like',
                     'url': permalink,
                     'title': f"{author}: {post_text[:60].strip()}...",
-                    'is_php': is_php
+                    'is_php': 1 if is_php else 0
                 })
                 
-                await HumanSimulator.human_scroll(self.page)
+                liked_count += 1
                 HumanSimulator.random_pause()
             
         return actions_data
