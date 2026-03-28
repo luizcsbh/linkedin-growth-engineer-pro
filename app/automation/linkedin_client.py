@@ -9,8 +9,9 @@ from app.utils.logger import setup_logger
 logger = setup_logger('linkedin_client')
 
 class LinkedInAutomation:
-    def __init__(self, safe_rules: SafeAutomationRules):
+    def __init__(self, safe_rules: SafeAutomationRules, db_manager=None):
         self.safe_rules = safe_rules
+        self.db = db_manager
         self.browser = None
         self.context = None
         self.page = None
@@ -201,6 +202,11 @@ class LinkedInAutomation:
                 permalink = await link_elem.get_attribute("href") if link_elem else self.page.url
                 if permalink and not permalink.startswith("http"):
                     permalink = "https://www.linkedin.com" + permalink
+                
+                # Check DB for existing like
+                if self.db and self.db.is_already_liked(permalink):
+                    logger.info(f"Skipping already liked post by {author}")
+                    continue
                 
                 await like_button.scroll_into_view_if_needed()
                 HumanSimulator.wait(1, 2)

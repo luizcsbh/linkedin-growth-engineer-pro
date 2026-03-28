@@ -46,6 +46,9 @@ class DatabaseManager:
                 )
             ''')
             
+            # Create indexing for unique checks
+            cursor.execute('CREATE INDEX IF NOT EXISTS idx_actions_type_url ON actions (action_type, detail_url)')
+            
             # Engagement scores table
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS engagement_scores (
@@ -163,6 +166,17 @@ class DatabaseManager:
             else:
                 cursor.execute('SELECT COUNT(*) FROM actions')
             return cursor.fetchone()[0]
+
+    def is_already_liked(self, url):
+        """Check if a specific post URL has already been liked."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT 1 FROM actions 
+                WHERE action_type = 'post_like' AND detail_url = ? 
+                LIMIT 1
+            ''', (url,))
+            return cursor.fetchone() is not None
 
     def get_action_stats(self, action_types):
         with self._get_connection() as conn:

@@ -16,7 +16,7 @@ class AdaptiveRoutineEngine:
         self.learning_engine = learning_engine
         self.safe_rules = SafeAutomationRules()
         self.ssi_estimator = SSIEstimator(db_manager)
-        self.client = LinkedInAutomation(self.safe_rules)
+        self.client = LinkedInAutomation(self.safe_rules, db_manager=self.db)
 
     async def run_daily_routine(self):
         """Run the daily routine with an adaptive plan."""
