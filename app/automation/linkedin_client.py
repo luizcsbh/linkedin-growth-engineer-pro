@@ -154,7 +154,7 @@ class LinkedInAutomation:
         await self.page.goto("https://www.linkedin.com/feed/")
         HumanSimulator.wait(3, 6)
         
-        num_likes_target = random.randint(3, 6)
+        num_likes_target = random.randint(6, 10)
         actions_data = []
         liked_count = 0
         
@@ -171,12 +171,8 @@ class LinkedInAutomation:
             await HumanSimulator.human_scroll(self.page)
             HumanSimulator.random_pause()
             
-        logger.info(f"Found {len(potential_posts)} potential posts in feed.")
+        logger.info(f"Found {len(potential_posts)} potential posts in feed. Target likes: {num_likes_target}")
             
-        # Prioritize PHP posts
-        php_posts = []
-        other_posts = []
-        
         # Like button selectors (Portuguese and English)
         like_btn_selectors = [
             "button.react-button__trigger:not(.react-button__trigger--active)",
@@ -187,33 +183,12 @@ class LinkedInAutomation:
         ]
         
         for post in potential_posts:
-            # Check for like button with multiple selectors
-            like_button = None
-            for selector in like_btn_selectors:
-                like_button = await post.query_selector(selector)
-                if like_button: break
-                
-            if not like_button: continue
-            
-            post_text = await post.inner_text()
-            is_php = any(kw in post_text.lower() for kw in ["php", "laravel", "backend", "software architecture", "symfony"])
-            
-            if is_php:
-                php_posts.append((post, post_text, True))
-            else:
-                other_posts.append((post, post_text, False))
-                
-        # Combine lists: PHP first
-        all_ordered_posts = php_posts + other_posts
-        logger.info(f"Identified {len(php_posts)} PHP posts and {len(other_posts)} other candidates.")
-        
-        for post, post_text, is_php in all_ordered_posts:
             if liked_count >= num_likes_target: break
             if not self.safe_rules.can_perform_action('post_like'): 
                 logger.info("Reached daily like limit in safe rules.")
                 break
-            
-            # Re-find the like button to ensure it's still there
+                
+            # Check for like button with multiple selectors
             like_button = None
             for selector in like_btn_selectors:
                 like_button = await post.query_selector(selector)
@@ -234,17 +209,20 @@ class LinkedInAutomation:
                     logger.info(f"Skipping already liked post by {author}")
                     continue
                 
+                # Get post text for logging
+                post_text = (await post.inner_text())[:60].strip() + "..."
+                
                 await like_button.scroll_into_view_if_needed()
                 HumanSimulator.wait(1, 2)
                 await like_button.click()
-                logger.info(f"Liked {'PHP ' if is_php else ''}post by {author}")
+                logger.info(f"Liked post by {author}")
                 
                 self.safe_rules.record_action('post_like')
                 actions_data.append({
                     'type': 'post_like',
                     'url': permalink,
-                    'title': f"{author}: {post_text[:60].strip()}...",
-                    'is_php': 1 if is_php else 0
+                    'title': f"{author}: {post_text}",
+                    'is_php': 0 # PHP prioritization removed
                 })
                 
                 liked_count += 1

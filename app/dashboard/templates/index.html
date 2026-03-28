@@ -69,7 +69,6 @@
         </div>
 
         <!-- Relatórios Específicos: Vagas e Likes -->
-        <div class="report-grid">
             <!-- Relatório de Vagas -->
             <div class="table-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -108,73 +107,19 @@
                 {% if total_pages_jobs > 1 %}
                 <div class="pagination" style="margin-top: 10px;">
                     {% if current_page_jobs > 1 %}
-                    <a href="/?page_jobs={{ current_page_jobs - 1 }}&page={{ current_page_gen }}&page_likes={{ current_page_likes }}">&laquo;</a>
+                    <a href="/?page_jobs={{ current_page_jobs - 1 }}&page={{ current_page_gen }}">&laquo;</a>
                     {% endif %}
                     
                     {% for p in range(max(1, current_page_jobs - 1), min(total_pages_jobs, current_page_jobs + 1) + 1) %}
-                    <a href="/?page_jobs={{ p }}&page={{ current_page_gen }}&page_likes={{ current_page_likes }}" class="{{ 'active' if p == current_page_jobs else '' }}">{{ p }}</a>
+                    <a href="/?page_jobs={{ p }}&page={{ current_page_gen }}" class="{{ 'active' if p == current_page_jobs else '' }}">{{ p }}</a>
                     {% endfor %}
                     
                     {% if current_page_jobs < total_pages_jobs %}
-                    <a href="/?page_jobs={{ current_page_jobs + 1 }}&page={{ current_page_gen }}&page_likes={{ current_page_likes }}">&raquo;</a>
+                    <a href="/?page_jobs={{ current_page_jobs + 1 }}&page={{ current_page_gen }}">&raquo;</a>
                     {% endif %}
                 </div>
                 {% endif %}
             </div>
-
-            <!-- Relatório de Likes -->
-            <div class="table-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="margin: 0;">Relatório de Likes</h3>
-                    <div class="stats-summary">
-                        Total: <strong>{{ stats.get('post_like', {}).get('total', 0) }}</strong> | 
-                        PHP: <strong>{{ stats.get('post_like', {}).get('php', 0) }}</strong>
-                    </div>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Post (Início)</th>
-                            <th>PHP?</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for like in likes_report %}
-                        <tr>
-                            <td>
-                                <a href="{{ like[2] }}" target="_blank" class="action-link" style="color: #333; font-weight: 500;">{{ like[3] }}</a>
-                                <div style="font-size: 10px; color: #999;">{{ like[1] }}</div>
-                            </td>
-                            <td>
-                                {% if like[4] %}
-                                <span class="badge badge-php">SIM</span>
-                                {% else %}
-                                <span style="color: #ccc;">-</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-                {% if total_pages_likes > 1 %}
-                <div class="pagination" style="margin-top: 10px;">
-                    {% if current_page_likes > 1 %}
-                    <a href="/?page_likes={{ current_page_likes - 1 }}&page={{ current_page_gen }}&page_jobs={{ current_page_jobs }}">&laquo;</a>
-                    {% endif %}
-                    
-                    {% for p in range(max(1, current_page_likes - 1), min(total_pages_likes, current_page_likes + 1) + 1) %}
-                    <a href="/?page_likes={{ p }}&page={{ current_page_gen }}&page_jobs={{ current_page_jobs }}" class="{{ 'active' if p == current_page_likes else '' }}">{{ p }}</a>
-                    {% endfor %}
-                    
-                    {% if current_page_likes < total_pages_likes %}
-                    <a href="/?page_likes={{ current_page_likes + 1 }}&page={{ current_page_gen }}&page_jobs={{ current_page_jobs }}">&raquo;</a>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-            </div>
-        </div>
 
         <div class="table-container">
             <h3>Log Geral de Atividades</h3>
@@ -222,17 +167,17 @@
             {% if total_pages_gen > 1 %}
             <div class="pagination">
                 {% if current_page_gen > 1 %}
-                <a href="/?page={{ current_page_gen - 1 }}&page_jobs={{ current_page_jobs }}&page_likes={{ current_page_likes }}">&laquo; Anterior</a>
+                <a href="/?page={{ current_page_gen - 1 }}&page_jobs={{ current_page_jobs }}">&laquo; Anterior</a>
                 {% else %}
                 <span class="disabled">&laquo; Anterior</span>
                 {% endif %}
                 
                 {% for p in range(max(1, current_page_gen - 2), min(total_pages_gen, current_page_gen + 2) + 1) %}
-                <a href="/?page={{ p }}&page_jobs={{ current_page_jobs }}&page_likes={{ current_page_likes }}" class="{{ 'active' if p == current_page_gen else '' }}">{{ p }}</a>
+                <a href="/?page={{ p }}&page_jobs={{ current_page_jobs }}" class="{{ 'active' if p == current_page_gen else '' }}">{{ p }}</a>
                 {% endfor %}
                 
                 {% if current_page_gen < total_pages_gen %}
-                <a href="/?page={{ current_page_gen + 1 }}&page_jobs={{ current_page_jobs }}&page_likes={{ current_page_likes }}">Próximo &raquo;</a>
+                <a href="/?page={{ current_page_gen + 1 }}&page_jobs={{ current_page_jobs }}">Próximo &raquo;</a>
                 {% else %}
                 <span class="disabled">Próximo &raquo;</span>
                 {% endif %}
